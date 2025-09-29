@@ -17,14 +17,9 @@ from .agent.tools import AGENT_TOOLS
 logger = logging.getLogger(__name__)
 
 
-def add_messages(left: Sequence[BaseMessage], right: Sequence[BaseMessage]) -> Sequence[BaseMessage]:
-    """Add messages together for state updates."""
-    return list(left) + list(right)
-
-
 class AgentState(TypedDict):
     """State for the LangGraph RAG agent."""
-    messages: Annotated[Sequence[BaseMessage], add_messages]
+    messages: Annotated[Sequence[BaseMessage], add]
 
 
 class RagAgent:
@@ -84,33 +79,7 @@ class RagAgent:
         
         # Add system prompt if not already present
         if not messages or not isinstance(messages[0], SystemMessage):
-            system_prompt = """
-You are an intelligent AI assistant specialized in answering questions about NVIDIA documentation and technology.
-
-You have access to a comprehensive knowledge base of NVIDIA technical documentation including:
-- GPU architecture and specifications
-- CUDA programming guides
-- DGX system administration
-- Networking hardware documentation
-- AI acceleration technologies
-- Driver and firmware information
-
-Use the available retriever tools to search for relevant information when answering questions. 
-You can make multiple tool calls if needed to gather comprehensive information.
-
-Guidelines:
-1. Always use the search tools to find relevant documentation before answering
-2. Cite specific document sources in your answers
-3. If you need clarification or additional context, use the tools to search for more information
-4. Provide accurate, technical information based on the retrieved documents
-5. If no relevant information is found, clearly state that and suggest alternative search terms
-
-Available tools:
-- search_nvidia_docs: Search the NVIDIA documentation database
-- get_retrieval_stats: Get information about the knowledge base
-
-Please provide helpful, accurate answers based on the NVIDIA documentation.
-"""
+            system_prompt = "You are an AI assistant for NVIDIA documentation. Use the search tools to find relevant information and cite sources in your answers."
             messages = [SystemMessage(content=system_prompt)] + messages
         
         # Bind tools to the LLM for function calling
@@ -170,31 +139,22 @@ Please provide helpful, accurate answers based on the NVIDIA documentation.
     
     def run_interactive(self):
         """Run the agent in interactive mode."""
-        print("\n🤖 NVIDIA Documentation RAG Assistant")
-        print("Ask questions about NVIDIA technology, GPUs, CUDA, DGX systems, and more!")
-        print("Type 'exit', 'quit', or 'q' to stop.\n")
+        print("NVIDIA Documentation RAG Assistant")
+        print("Type 'exit' to quit.\n")
         
         while True:
             try:
-                user_input = input("🧑 Your question: ").strip()
-                
+                user_input = input("Question: ").strip()
                 if user_input.lower() in ['exit', 'quit', 'q', '']:
-                    print("👋 Goodbye!")
                     break
                 
-                print("\n🔍 Searching NVIDIA docs...")
                 response = self.chat(user_input)
-                
-                print(f"\n🤖 Answer:")
-                print(response)
-                print()
+                print(f"\nAnswer: {response}\n")
                 
             except KeyboardInterrupt:
-                print("\n👋 Goodbye!")
                 break
             except Exception as e:
-                print(f"❌ Error: {e}")
-                logger.error(f"Error in interactive mode: {e}")
+                print(f"Error: {e}")
 
 
 class RagApp:
@@ -219,24 +179,13 @@ class RagApp:
     def run(self):
         """Run the main application."""
         try:
-            print("🚀 Initializing NVIDIA Documentation RAG System...")
+            print("Initializing RAG System...")
             agent = self.initialize_agent()
-            
-            # Check system status
-            from .agent.tools import get_retrieval_stats
-            stats = get_retrieval_stats.invoke({})
-            
-            if stats.get('status') == 'ready':
-                print(f"✅ System ready! {stats.get('document_count', 0)} documents available")
-            else:
-                print("⚠️  Database not fully ready, but system is functional")
-            
             agent.run_interactive()
-                
         except KeyboardInterrupt:
-            print("\n👋 Goodbye!")
+            print("\nGoodbye!")
         except Exception as e:
-            print(f"❌ Failed to initialize RAG system: {e}")
+            print(f"Error: {e}")
             logger.error(f"Application startup failed: {e}")
 
 

@@ -54,72 +54,29 @@ class DummyEmbeddings(Embeddings):
 
 
 class SafeModernBERTEmbeddings(Embeddings):
-    """
-    Safe ModernBERT embeddings that always fallback to dummy embeddings.
-    Attempts to use real embeddings but gracefully handles all import failures.
-    """
+    """Safe ModernBERT embeddings with dummy fallback."""
     
-    def __init__(
-        self,
-        model_name: str = "answerdotai/ModernBERT-base",
-        device: str = "cpu",
-        embedding_dim: int = 768,
-        **kwargs
-    ):
-        """
-        Initialize embeddings with safe fallback.
-        
-        Args:
-            model_name: HuggingFace model name (attempted)
-            device: Device preference (attempted)
-            embedding_dim: Embedding dimension for fallback
-        """
+    def __init__(self, model_name: str = "answerdotai/ModernBERT-base", 
+                 embedding_dim: int = 768, **kwargs):
         self.model_name = model_name
-        self.device = device
-        self.embedding_dim = embedding_dim
-        
-        # Always use dummy embeddings for now (safe)
         self._embeddings_impl = DummyEmbeddings(embedding_dim=embedding_dim)
         logger.info("Initialized safe embeddings with dummy fallback")
     
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        """Embed a list of documents."""
         return self._embeddings_impl.embed_documents(texts)
     
     def embed_query(self, text: str) -> List[float]:
-        """Embed a single query."""
         return self._embeddings_impl.embed_query(text)
-    
-    def __str__(self) -> str:
-        return f"SafeModernBERTEmbeddings(using=DummyEmbeddings, target={self.model_name})"
 
 
-def get_embeddings(
-    model_name: str = "answerdotai/ModernBERT-base",
-    embedding_dim: int = 768,
-    force_dummy: bool = False
-) -> Embeddings:
-    """
-    Get embeddings with safe fallback strategy.
-    
-    Args:
-        model_name: Target model name
-        embedding_dim: Embedding dimension
-        force_dummy: Force dummy embeddings (for testing)
-    
-    Returns:
-        Embeddings instance (guaranteed to work)
-    """
+def get_embeddings(model_name: str = "answerdotai/ModernBERT-base",
+                   embedding_dim: int = 768, force_dummy: bool = False) -> Embeddings:
+    """Get embeddings with safe fallback strategy."""
     if force_dummy:
-        logger.info("Using forced dummy embeddings")
         return DummyEmbeddings(embedding_dim=embedding_dim)
     
     try:
-        # Try to use safe ModernBERT embeddings
-        return SafeModernBERTEmbeddings(
-            model_name=model_name,
-            embedding_dim=embedding_dim
-        )
+        return SafeModernBERTEmbeddings(model_name=model_name, embedding_dim=embedding_dim)
     except Exception as e:
-        logger.warning(f"SafeModernBERTEmbeddings failed: {e}, falling back to pure dummy")
+        logger.warning(f"SafeModernBERTEmbeddings failed: {e}, falling back to dummy")
         return DummyEmbeddings(embedding_dim=embedding_dim)

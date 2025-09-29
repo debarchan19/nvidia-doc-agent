@@ -1,4 +1,1 @@
-class TestAgent:
-    """Placeholder for agent tests."""
-
-    pass
+# TODO: Implement agent tests

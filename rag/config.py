@@ -26,19 +26,6 @@ class Config:
 
     def __post_init__(self) -> None:
         self.docs_root = Path(self.docs_root).expanduser().resolve()
-        if not self.docs_root.exists():
-            raise FileNotFoundError(f"Docs root does not exist: {self.docs_root}")
-        normalized_suffixes = []
-        for suffix in self.markdown_suffixes:
-            suffix = suffix.strip().lower()
-            if not suffix.startswith('.'):
-                suffix = f".{suffix}"
-            normalized_suffixes.append(suffix)
-        self.markdown_suffixes = tuple(normalized_suffixes)
-        if self.chunk_size <= 0:
-            raise ValueError("chunk_size must be positive")
-        if self.chunk_overlap < 0:
-            raise ValueError("chunk_overlap cannot be negative")
         if self.vector_store_dir is not None:
             self.vector_store_dir = Path(self.vector_store_dir).expanduser().resolve()
 

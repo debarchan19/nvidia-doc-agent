@@ -1,4 +1,2 @@
-class EmbeddingPipeline:
-    """Placeholder for embedding generation pipeline."""
-
-    pass
+# Placeholder for embedding generation pipeline
+# TODO: Implement embedding generation functionality

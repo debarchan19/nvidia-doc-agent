@@ -1,4 +1,2 @@
-class IndexBuilder:
-    """Placeholder for index construction logic."""
-
-    pass
+# Placeholder for index construction logic
+# TODO: Implement index building functionality

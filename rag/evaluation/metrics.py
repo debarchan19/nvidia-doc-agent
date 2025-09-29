@@ -1,4 +1,2 @@
-class EvaluationMetrics:
-    """Placeholder for evaluation metric definitions."""
-
-    pass
+# Placeholder for evaluation metric definitions
+# TODO: Implement evaluation metrics

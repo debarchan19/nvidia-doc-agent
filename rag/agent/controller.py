@@ -33,34 +33,12 @@ class AgentController:
         logger.info(f"Initialized agent controller with model: {model_name}")
     
     def search_documents(self, query: str, max_results: int = 5) -> List[Dict[str, Any]]:
-        """
-        Search for documents using the retriever.
-        
-        Args:
-            query: Search query
-            max_results: Maximum number of results
-            
-        Returns:
-            List of search results
-        """
-        try:
-            results = search_nvidia_docs.invoke({
-                "query": query,
-                "max_results": max_results
-            })
-            logger.info(f"Search for '{query}' returned {len(results)} results")
-            return results
-        except Exception as e:
-            logger.error(f"Error searching documents: {e}")
-            return []
+        """Search for documents using the retriever."""
+        return search_nvidia_docs.invoke({"query": query, "max_results": max_results})
     
     def get_database_stats(self) -> Dict[str, Any]:
         """Get vector database statistics."""
-        try:
-            return get_retrieval_stats.invoke({})
-        except Exception as e:
-            logger.error(f"Error getting database stats: {e}")
-            return {"status": "error", "error": str(e)}
+        return get_retrieval_stats.invoke({})
     
     def generate_response(self, query: str, context_docs: List[Dict[str, Any]]) -> str:
         """

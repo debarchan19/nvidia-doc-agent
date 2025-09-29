@@ -57,57 +57,28 @@ class Retriever:
     def _initialize_vector_store(self) -> None:
         """Initialize the ChromaDB vector store."""
         try:
-            # Create ChromaDB client
-            chroma_settings = config.chroma_settings(self.vector_store_dir)
-            
             self._vector_store = Chroma(
                 collection_name=self.collection_name,
                 embedding_function=self.embeddings,
                 persist_directory=str(self.vector_store_dir)
             )
             logger.info(f"Initialized vector store at {self.vector_store_dir}")
-            
         except Exception as e:
             logger.error(f"Failed to initialize vector store: {e}")
-            # Create a dummy vector store if initialization fails
             self._vector_store = None
     
     def search(self, query: str, top_k: Optional[int] = None) -> List[Document]:
-        """
-        Search for documents similar to the query.
-        
-        Args:
-            query: Search query string
-            top_k: Number of results to return (overrides default)
-        
-        Returns:
-            List of relevant documents
-        """
+        """Search for documents similar to the query."""
         if not self._vector_store:
-            logger.warning("Vector store not initialized, returning empty results")
             return []
         
-        k = top_k or self.top_k
-        
         try:
-            # Perform similarity search
             results = self._vector_store.similarity_search_with_score(
-                query=query,
-                k=k
+                query=query, k=top_k or self.top_k
             )
-            
-            # Filter by distance threshold
-            # ChromaDB returns distances where lower = more similar
-            filtered_results = [
-                doc for doc, score in results 
-                if score <= self.max_distance
-            ]
-            
-            logger.info(f"Retrieved {len(filtered_results)} documents for query: {query[:50]}...")
-            return filtered_results
-            
+            return [doc for doc, score in results if score <= self.max_distance]
         except Exception as e:
-            logger.error(f"Error during search: {e}")
+            logger.error(f"Search error: {e}")
             return []
     
     def search_with_metadata(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, Any]]:
