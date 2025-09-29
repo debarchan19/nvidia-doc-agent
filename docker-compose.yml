@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  nvidia-rag:
+    build: .
+    container_name: nvidia-rag-system
+    ports:
+      - "11434:11434" # Ollama port
+    volumes:
+      - ./rag/vector_store:/app/rag/vector_store # Persist vector store
+      - ollama_models:/root/.ollama # Persist Ollama models
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    stdin_open: true
+    tty: true
+    command: [ "nvidia-rag", "chat" ]
+
+volumes:
+  ollama_models:
