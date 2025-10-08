@@ -106,9 +106,30 @@ nvidia_docs_md/
 nvidia_docs_subset/
 *.zip
 
+# Vector databases and indices
+rag/vector_store/
+production_vector_store/
+local_vector_store/
+*.chroma
+*.sqlite3
+*.bin
+*.pickle
+
+# Model files (too large for git)
+ModernBERT-base/
+models/
+*.safetensors
+pytorch_model.bin
+
+# Migration packages
+packages/
+*.tar.gz
+
 # Logs
 *.log
 logs/
+ingestion.log
+migration.log
 
 # Temporary files
 temp/
@@ -120,3 +141,19 @@ temp/
 
 # pyenv
 .python-version
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

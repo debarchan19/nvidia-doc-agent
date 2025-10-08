@@ -19,10 +19,12 @@ class Config:
     vector_store_dir: Path | None = None
     chroma_collection: str = "nvidia_docs"
     chroma_anonymized_telemetry: bool = False
+    modernbert_model_path: str | None = None  # Path to local ModernBERT model
     _cached_files: Tuple[Path, ...] | None = field(default=None, init=False, repr=False)
 
     ENV_DOCS_ROOT = "NVIDIA_DOCS_ROOT"
     ENV_VECTOR_STORE_DIR = "NVIDIA_VECTOR_STORE_DIR"
+    ENV_MODERNBERT_PATH = "NVIDIA_MODERNBERT_PATH"
 
     def __post_init__(self) -> None:
         self.docs_root = Path(self.docs_root).expanduser().resolve()
@@ -45,7 +47,7 @@ class Config:
     @classmethod
     def from_project_root(cls, *, vector_store_dir: Path | None = None) -> "Config":
         project_root = Path(__file__).resolve().parent.parent
-        default_root = project_root / "nvidia_docs_subset"
+        default_root = project_root / "nvidia_docs_md"
         default_vector_dir = vector_store_dir or project_root / "rag" / "vector_store"
         return cls(docs_root=default_root, vector_store_dir=default_vector_dir)
 
@@ -56,8 +58,11 @@ class Config:
         return self._cached_files
 
     def iter_markdown_files(self) -> Iterator[Path]:
-        for candidate in self.docs_root.rglob('*'):
-            if candidate.is_file() and candidate.suffix.lower() in self.markdown_suffixes:
+        for candidate in self.docs_root.rglob("*"):
+            if (
+                candidate.is_file()
+                and candidate.suffix.lower() in self.markdown_suffixes
+            ):
                 yield candidate
 
     def refresh_markdown_cache(self) -> None:
@@ -77,7 +82,7 @@ class Config:
         return Settings(
             anonymized_telemetry=False,
             persist_directory=str(persist_directory),
-            is_persistent=True
+            is_persistent=True,
         )
 
 
